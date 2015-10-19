@@ -8,7 +8,6 @@ format. This being JSON already plays rather nicely with tools like Elasticsearc
 
 """
 # stdlib
-import os
 import json
 import argparse
 
@@ -17,12 +16,14 @@ import requests
 
 API_PREFIX = 'https://api.sncf.com/v1/coverage/sncf/'
 
-def main(path, api_key):
+def main(path, api_key, out_json_path):
     """ Let's crawl some data """
 
     # Let's crawl some random data out of nowhere and save the JSON result
+    print("Crawling the {0} endpoint and saving the results into {1}".format(API_PREFIX + path,
+                                                                             out_json_path))
     req = requests.get(API_PREFIX + path, auth=requests.auth.HTTPBasicAuth(api_key, ''))
-    with open('./results.json', 'w') as out:
+    with open(out_json_path, 'w') as out:
         out.write(json.dumps(req.json(), sort_keys=True, indent=2, separators=(', ', ': ')))
     print("Data crawled successfully")
 
@@ -32,7 +33,9 @@ if __name__ == '__main__':
                         help='Path to the resource (the URL part after "coverage/sncf")')
     parser.add_argument('--key', type=str, required=True,
                         help='The API key you use to connect to the SNCF API.')
+    parser.add_argument('--out', type=str, default='./result.json',
+                        help='Path tot he output file.')
 
     args = parser.parse_args()
 
-    main(args.path, args.key)
+    main(args.path, args.key, args.out)
